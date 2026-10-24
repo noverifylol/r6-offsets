@@ -1,4 +1,4 @@
-health=0x94
+health=0xB0
 team_id=0x1338
 stance=0xa0c
 is_alive=0x2A8
@@ -9,7 +9,6 @@ character_descriptor_qword=0x00000101EA5B338D
 view_data_camera=0x190
 view_data_matrix=0x250
 view_data_pattern=0x2A4
-component_id=0xc63
 flash_duration=0xC4
 movement_velocity=0x468
 pitch=0x200

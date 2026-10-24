@@ -1,8 +1,8 @@
-health=0x94
+health=0xB0
 team_id=0x1338
 stance=0x9c0
 is_alive=0x2A8
-character_position=0xA70
+character_position=0x50
 character_position_alt=0x280
 character_descriptor_ptr=0x160
 character_descriptor_qword=0x00000101EA5B338D

@@ -1,16 +1,68 @@
-health=0xB0
+# ============================================================
+# v6Core offsets
+# https://github.com/noverifylol/r6-offsets/blob/main/offsets.txt
+#
+# key=value        decimal oder 0x hex
+# # Kommentar      eigene Zeile oder am Ende
+# Unbekannte Keys werden ignoriert. Ungültige Werte behalten
+# den eingebauten Default.
+# ============================================================
+
+# --- Entity-Felder (Entity-Pipeline, nicht die alte Player-List) ---
+entity_health=0x94
+dbno_health=0xA0
+flash_duration=0xC4
+entity_stance=0xA0C
+stance_stand=0
+stance_crouch=1
+stance_prone=2
 team_id=0x1338
-stance=0x9c0
+armor_tier=0x98
+operator_id=0xB4
 is_alive=0x2A8
-character_position=0xA70
-character_position_alt=0x280
-character_descriptor_ptr=0x160
-character_descriptor_qword=0x00000101EA5B338D
+
+# --- Entity -> Transform-Component ---
+entity_comp_offset=0xF0
+component_id=0xC63
+component_position=0xA70
+
+# --- ViewData / Kamera ---
 view_data_camera=0x190
 view_data_matrix=0x250
 view_data_pattern=0x2A4
-component_id=0xC63
-flash_duration=0xC4
-movement_velocity=0x468
-pitch=0x200
-yaw=0x94
+
+# --- Projektion / Geometrie ---
+# projection_fov auf deinen In-Game-FOV setzen
+projection_fov=60
+stand_height=1.80
+crouch_height=1.25
+prone_height=0.55
+esp_height_scale=1.00
+feet_offset_stand=0.00
+feet_offset_crouch=0.00
+feet_offset_prone=0.00
+
+# --- Timing (ms) ---
+health_timeout_ms=600
+entity_ttl_ms=2500
+
+# ============================================================
+# OPTIONAL - nur mit verifiziertem Wert eintragen
+# ============================================================
+# entity_global_rva=0x...
+# view_data_fov=0x...
+# third_person_offset=0x...
+# fov_offset=0x...
+# component_position_alt=0x...
+# character_position_alt=0x...
+# extrapolation_position=0x220
+# movement_velocity=0x468
+# component_vtable_rva=0x1010F500
+
+# ============================================================
+# NICHT VERWENDEN (alte Player-List)
+# ============================================================
+# health=0xB0
+# stance=0x9C0
+# character_position_alt=0x280
+# component_position_alt=0x230

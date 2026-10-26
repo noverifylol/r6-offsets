@@ -2,11 +2,16 @@
 # v6Core offsets
 # https://github.com/noverifylol/r6-offsets/blob/main/offsets.txt
 #
-# Numeric offset table, not a signature list.
-# Pattern bytes such as "F3 0F 10 81 ? ? ? ?" are ignored here.
+# This file is a numeric offset table, not a signature list.
+# Values must be decimal or 0x-prefixed hexadecimal.
+# Pattern bytes such as "F3 0F 10 81 ? ? ? ?" are ignored here;
+# they belong in the signature scanner, not in offsets.txt.
+#
+# Unknown keys are ignored. Invalid or implausible values keep the
+# compiled default, so a bad edit cannot zero out the cheat.
 # ============================================================
 
-# --- Entity fields ---
+# --- Entity fields: authoritative entity-list pipeline ---
 entity_health=0x94
 dbno_health=0xA0
 flash_duration=0xC4
@@ -20,8 +25,11 @@ operator_id=0xB4
 is_alive=0x2A8
 
 # --- Entity -> transform component ---
+# entity + 0xF0 -> component slot array
 entity_comp_offset=0xF0
+# marker at component - 8 (transform component id)
 component_id=0xC63
+# transform + 0xA70 -> world position
 component_position=0xA70
 
 # --- ViewData / camera ---
@@ -43,11 +51,22 @@ feet_offset_prone=0.00
 health_timeout_ms=600
 entity_ttl_ms=2500
 
-# --- Optional: only enable with a value verified on this build ---
+# --- Optional: only enable with a value verified on the current build ---
+# Feature gates (leave commented until you have a live-verified value):
+#   Visible Only  -> visibility_offset + visibility_value
+#   ESP Name      -> entity_name_offset
+#   ESP Weapon    -> weapon_offset (entity -> weapon) + weapon_name_offset
+#   Third Person  -> third_person_offset
+#   FOV Changer   -> fov_offset or view_data_fov
 # entity_global_rva=0x...
 # view_data_fov=0x...
 # third_person_offset=0x...
 # fov_offset=0x...
+# visibility_offset=0x...
+# visibility_value=1
+# entity_name_offset=0x...
+# weapon_offset=0x...
+# weapon_name_offset=0x...
 # component_position_alt=0x...
 # character_position_alt=0x...
 # extrapolation_position=0x220

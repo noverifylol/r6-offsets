@@ -1,5 +1,9 @@
 # ============================================================
 # v6Core offsets
+# https://github.com/noverifylol/r6-offsets/blob/main/offsets.txt
+#
+# Numeric offset table, not a signature list.
+# Pattern bytes such as "F3 0F 10 81 ? ? ? ?" are ignored here.
 # ============================================================
 
 # --- Entity fields ---
@@ -15,7 +19,7 @@ armor_tier=0x98
 operator_id=0xB4
 is_alive=0x2A8
 
-# --- entity -> transform component ---
+# --- Entity -> transform component ---
 entity_comp_offset=0xF0
 component_id=0xC63
 component_position=0xA70
@@ -25,7 +29,7 @@ view_data_camera=0x190
 view_data_matrix=0x250
 view_data_pattern=0x2A4
 
-# --- projection / geometry ---
+# --- Projection / geometry ---
 projection_fov=60
 stand_height=1.80
 crouch_height=1.25
@@ -35,11 +39,11 @@ feet_offset_stand=0.00
 feet_offset_crouch=0.00
 feet_offset_prone=0.00
 
-# --- timing ---
+# --- Timing (milliseconds) ---
 health_timeout_ms=600
 entity_ttl_ms=2500
 
-# --- optional, only with a verified value ---
+# --- Optional: only enable with a value verified on this build ---
 # entity_global_rva=0x...
 # view_data_fov=0x...
 # third_person_offset=0x...

@@ -1,41 +1,108 @@
 # ============================================================
-# v6Core offsets
+# v6Core offsets - paste this into
 # https://github.com/noverifylol/r6-offsets/blob/main/offsets.txt
 #
-# This file is a numeric offset table, not a signature list.
-# Values must be decimal or 0x-prefixed hexadecimal.
-# Pattern bytes such as "F3 0F 10 81 ? ? ? ?" are ignored here;
-# they belong in the signature scanner, not in offsets.txt.
+# This file is the single source of truth.  Every launch of the loader
+# (press OK in the lobby) and of the overlay (Fetch offsets) downloads
+# https://raw.githubusercontent.com/noverifylol/r6-offsets/refs/heads/main/offsets.txt
+# and applies every key below.  Nothing is scanned in the game any more.
 #
-# Unknown keys are ignored. Invalid or implausible values keep the
-# compiled default, so a bad edit cannot zero out the cheat.
+# Format:
+#   key=0x1234      hexadecimal
+#   key=123         decimal
+#   key=1.25        float (only for the geometry/FOV keys)
+#   # comment       whole line, or after a value
+#
+# Unknown keys and non-numeric lines are ignored, so a signature dump can
+# be pasted in here without breaking anything.  An invalid or implausible
+# value keeps the compiled default instead of zeroing the cheat.
+#
+# After a patch: change the numbers below, push, done.  Every customer
+# has the new table on the next start.
+#
+# Reference for the numbers below: live dump of the current build
+#   image_size=0x188BE000   (reference only - not read by the cheat)
 # ============================================================
 
-# --- Entity fields: authoritative entity-list pipeline ---
+# --- Entity fields (actor/entity object) ---
 entity_health=0x94
 dbno_health=0xA0
+armor_tier=0x98
 flash_duration=0xC4
-entity_stance=0xA0C
+# stance enum: 30/34 hits in the newest dump, pattern
+# 8B 83 ?? ?? ?? ?? 83 F8 02 74
+# if the boxes get the wrong height/stance, try the older value 0xA0C
+entity_stance=0x9C0
 stance_stand=0
 stance_crouch=1
 stance_prone=2
+# not in the newest dump - verify before trusting it
 team_id=0x1338
-armor_tier=0x98
 operator_id=0xB4
 is_alive=0x2A8
 
 # --- Entity -> transform component ---
-# entity + 0xF0 -> component slot array
 entity_comp_offset=0xF0
-# marker at component - 8 (transform component id)
+# marker at component - 8
 component_id=0xC63
 # transform + 0xA70 -> world position
 component_position=0xA70
+component_vtable_rva=0x1010F500
 
-# --- ViewData / camera ---
+# --- Entity list global (actor list) ---
+# 0x103D4220 from the newest dump: global RVA of the actor list slot
+# (signature 48 8B 0D ?? ?? ?? ?? BA 01 00 00 00 E8 ... 83 FA 02).
+# The cheat validates the slot against live entities and falls back to its
+# own signature scan when it does not match, so 0 is always safe too.
+entity_global_rva=0x103D4220
+
+# --- Manager globals (module RVAs of the pointer slots) ---
+# Live values of the installed build; older dump: game_manager=0x117BB0F8
+game_manager=0x117BD168
+game_profile=0x1165FEA8
+round_manager=0x115BD600
+network_manager=0x116454E8
+input_manager=0x11675168
+glow_manager=0x11632BD0
+fov_manager=0x116858F0
+freeze_manager=0x12537278
+spotted_vtable=0x10CFD620
+
+# --- Manager entity list / health / team (fallback path) ---
+manager_entity_list=0xC8
+manager_entity_count=0xD0
+manager_entity_stride=0x8
+manager_entity_health=0x28
+manager_health_info=0xD8
+manager_health_component=0x8
+manager_health_value=0x168
+manager_team_info=0xC8
+manager_team_component=0x88
+manager_team_value=0x30
+
+# --- Manager camera chain + camera basis (fallback path) ---
+profile_camera_chain1=0x68
+profile_camera_chain2=0x0
+profile_camera_chain3=0x130
+profile_camera_chain4=0x420
+camera_right=0x7C0
+camera_up=0x7D0
+camera_forward=0x7E0
+camera_translation=0x7F0
+camera_fov_x=0x800
+camera_fov_y=0x814
+
+# --- Character/bone chain for base-list entities ---
+base_character_ref=0x20
+base_feet_offset=0x700
+
+# --- ViewData / camera matrix ---
 view_data_camera=0x190
 view_data_matrix=0x250
 view_data_pattern=0x2A4
+
+# --- View angles ---
+view_pitch=0x200
 
 # --- Projection / geometry ---
 projection_fov=60
@@ -51,24 +118,23 @@ feet_offset_prone=0.00
 health_timeout_ms=600
 entity_ttl_ms=2500
 
-# --- Optional: only enable with a value verified on the current build ---
-# Feature gates (leave commented until you have a live-verified value):
+# --- Recorded but not read by the cheat yet ---
+# extrapolation_position=0x220
+# movement_velocity=0x468
+
+# --- Feature gates: only enable with a live-verified value ---
 #   Visible Only  -> visibility_offset + visibility_value
 #   ESP Name      -> entity_name_offset
-#   ESP Weapon    -> weapon_offset (entity -> weapon) + weapon_name_offset
+#   ESP Weapon    -> weapon_offset + weapon_name_offset
 #   Third Person  -> third_person_offset
 #   FOV Changer   -> fov_offset or view_data_fov
-# entity_global_rva=0x...
-# view_data_fov=0x...
-# third_person_offset=0x...
-# fov_offset=0x...
 # visibility_offset=0x...
 # visibility_value=1
 # entity_name_offset=0x...
 # weapon_offset=0x...
 # weapon_name_offset=0x...
+# third_person_offset=0x...
+# fov_offset=0x...
+# view_data_fov=0x...
 # component_position_alt=0x...
 # character_position_alt=0x...
-# extrapolation_position=0x220
-# movement_velocity=0x468
-# component_vtable_rva=0x1010F500

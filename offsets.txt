@@ -2,46 +2,60 @@
 # v6Core offsets - paste this into
 # https://github.com/noverifylol/r6-offsets/blob/main/offsets.txt
 #
-# This file is the single source of truth.  Every launch of the loader
-# (press OK in the lobby) and of the overlay (Fetch offsets) downloads
-# https://raw.githubusercontent.com/noverifylol/r6-offsets/refs/heads/main/offsets.txt
-# and applies every key below.  Nothing is scanned in the game any more.
+# This file is the single source of truth.  Nothing is scanned in the game.
+#   * loader: press OK in the lobby -> table is downloaded -> overlay starts
+#   * overlay: "Fetch offsets" button, and once on every start
+#   * the entity list, the actor position, health and the camera all come
+#     from the keys below.  A value that does not validate is reported in
+#     v6core_debug.log instead of starting a scan.
+#
+# Download URL:
+#   https://raw.githubusercontent.com/noverifylol/r6-offsets/refs/heads/main/offsets.txt
+# Offline fallback, in this order: offsets.cache -> offsets.txt next to the
+# executable -> built-in defaults.
 #
 # Format:
 #   key=0x1234      hexadecimal
 #   key=123         decimal
-#   key=1.25        float (only for the geometry/FOV keys)
+#   key=1.25        float (geometry/FOV keys only)
 #   # comment       whole line, or after a value
 #
-# Unknown keys and non-numeric lines are ignored, so a signature dump can
-# be pasted in here without breaking anything.  An invalid or implausible
-# value keeps the compiled default instead of zeroing the cheat.
+# Unknown keys and non-numeric lines are ignored, so a signature dump can be
+# pasted in here without breaking anything.  An invalid or implausible value
+# keeps the built-in default instead of zeroing the cheat.
 #
-# After a patch: change the numbers below, push, done.  Every customer
-# has the new table on the next start.
+# After a patch: change the numbers below, push, done.  Every customer has
+# the new table on the next start.
 #
-# Reference for the numbers below: live dump of the current build
-#   image_size=0x188BE000   (reference only - not read by the cheat)
+# Reference: live dump of the current build (October 2026)
+#   image_size=0x186C5000   (reference only - not read by the cheat)
+#   actor-list signature: 48 8B 0D ?? ?? ?? ?? BA 01 00 00 00 E8 ... 83 FA 02
 # ============================================================
 
 # --- Entity fields (actor/entity object) ---
+# Position = 0x220 from the newest dump.  This is the primary ESP position:
+# the reader takes it straight from the actor, no component marker needed.
+# Keys "position" and "entity_position" are accepted as aliases.
+extrapolation_position=0x220
 entity_health=0x94
 dbno_health=0xA0
 armor_tier=0x98
 flash_duration=0xC4
-# stance enum: 30/34 hits in the newest dump, pattern
-# 8B 83 ?? ?? ?? ?? 83 F8 02 74
+# stance enum: 30/34 hits in the newest dump (pattern 8B 83 ?? ?? ?? ?? 83 F8 02 74)
 # if the boxes get the wrong height/stance, try the older value 0xA0C
 entity_stance=0x9C0
 stance_stand=0
 stance_crouch=1
 stance_prone=2
+# movement/velocity: Drone.Velocity 0x468 (1/1) in the dump
+movement_velocity=0x468
 # not in the newest dump - verify before trusting it
 team_id=0x1338
 operator_id=0xB4
 is_alive=0x2A8
 
-# --- Entity -> transform component ---
+# --- Entity -> transform component (only used when the actor position
+#     above does not validate; costs a slot walk per entity) ---
 entity_comp_offset=0xF0
 # marker at component - 8
 component_id=0xC63
@@ -50,15 +64,18 @@ component_position=0xA70
 component_vtable_rva=0x1010F500
 
 # --- Entity list global (actor list) ---
-# 0x103D4220 from the newest dump: global RVA of the actor list slot
-# (signature 48 8B 0D ?? ?? ?? ?? BA 01 00 00 00 E8 ... 83 FA 02).
-# The cheat validates the slot against live entities and falls back to its
-# own signature scan when it does not match, so 0 is always safe too.
+# global RVA = 0x103D4220 from the newest dump: module RVA of the actor-list
+# slot.  The overlay re-validates it every 1.5 s with a handful of pointer
+# reads and keeps retrying while a match loads; it never falls back to a scan
+# while this value is set.
 entity_global_rva=0x103D4220
 
 # --- Manager globals (module RVAs of the pointer slots) ---
-# Live values of the installed build; older dump: game_manager=0x117BB0F8
+# game_manager: validated by the live r6dumper run (object + vtable + entity
+# list).  The newest signature dump lists the second candidate 0x117BB0F8 -
+# if the manager chain stays dead, swap the two lines and fetch again.
 game_manager=0x117BD168
+# game_manager=0x117BB0F8
 game_profile=0x1165FEA8
 round_manager=0x115BD600
 network_manager=0x116454E8
@@ -80,7 +97,7 @@ manager_team_info=0xC8
 manager_team_component=0x88
 manager_team_value=0x30
 
-# --- Manager camera chain + camera basis (fallback path) ---
+# --- Manager camera chain + camera basis (label: BASE CAMERA) ---
 profile_camera_chain1=0x68
 profile_camera_chain2=0x0
 profile_camera_chain3=0x130
@@ -96,7 +113,7 @@ camera_fov_y=0x814
 base_character_ref=0x20
 base_feet_offset=0x700
 
-# --- ViewData / camera matrix ---
+# --- ViewData / camera matrix (label: LOCKED) ---
 view_data_camera=0x190
 view_data_matrix=0x250
 view_data_pattern=0x2A4
@@ -118,10 +135,6 @@ feet_offset_prone=0.00
 health_timeout_ms=600
 entity_ttl_ms=2500
 
-# --- Recorded but not read by the cheat yet ---
-# extrapolation_position=0x220
-# movement_velocity=0x468
-
 # --- Feature gates: only enable with a live-verified value ---
 #   Visible Only  -> visibility_offset + visibility_value
 #   ESP Name      -> entity_name_offset
@@ -138,3 +151,36 @@ entity_ttl_ms=2500
 # view_data_fov=0x...
 # component_position_alt=0x...
 # character_position_alt=0x...
+
+# ============================================================
+# Recorded from the newest dump, NOT read by the overlay yet.
+# Kept here so one file carries every offset; move a key up into the
+# active section (drop the #) once the matching reader exists.
+# ============================================================
+# entity_last_render_time=0x80
+# entity_last_shot_time=0x330
+# entity_reload_timer=0x70
+# entity_respawn_count=0xC0
+# entity_air_time=0xD8
+# entity_stance_transition_timer=0xC4
+# entity_sound_event_component=0x310
+# entity_drone_component=0x9D0
+# entity_barricade_component=0x9D8
+# entity_bullet_spawn_component=0x39B
+# entity_hitbox_component=0x278
+# entity_gadget_manager=0x3498       (1/4 hits, ambiguous)
+# replication_tick_number=0x1810     (2/2 in the EXT pass)
+# round_manager_round_number=0x28
+# gadget_ammo=0x3C0
+# gadget_health_points=0x88
+# gadget_flash_radius=0x5C
+# weapon_gravity_coefficient=0xA4
+# weapon_penetration_power=0xDC
+# weapon_attachment_bitmask=0xCC
+# tracer_thickness=0x164
+# outline_thickness=0xDC
+# crosshair_thickness=0x1C
+# barricade_health=0x14
+# hostage_position=0x128
+# sound_event_last_footstep_position=0x20
+# profile_alpha_pack_count=0x54
